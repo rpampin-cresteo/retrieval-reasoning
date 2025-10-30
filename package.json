@@ -1,0 +1,20 @@
+{
+  "name": "retrieval-reasoning-layer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "bootstrap": "git submodule update --init --recursive",
+    "env:build": "node scripts/build-env.mjs",
+    "dev": "node scripts/run-dev.mjs",
+    "start": "node scripts/start-prod.mjs",
+    "search:cli": "node scripts/run-search-cli.mjs",
+    "chat:cli": "node scripts/run-chat-cli.mjs",
+    "check": "node scripts/check-env.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "express": "^4.21.1",
+    "http-proxy-middleware": "^3.0.2"
+  }
+}

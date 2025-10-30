@@ -1,0 +1,6 @@
+[submodule "packages/05-search"]
+	path = packages/05-search
+	url = git@github.com:rpampin-cresteo/chatbot-search.git
+[submodule "packages/06-chat"]
+	path = packages/06-chat
+	url = file:///D:/Development/Cresteo/ChatAI/06-chat-remote.git
