@@ -7,6 +7,8 @@
     "bootstrap": "git submodule update --init --recursive",
     "env:build": "node scripts/build-env.mjs",
     "dev": "node scripts/run-dev.mjs",
+    "dev:all": "node scripts/run-dev.mjs",
+    "dev:widget": "node scripts/run-widget.mjs",
     "start": "node scripts/start-prod.mjs",
     "search:cli": "node scripts/run-search-cli.mjs",
     "chat:cli": "node scripts/run-chat-cli.mjs",

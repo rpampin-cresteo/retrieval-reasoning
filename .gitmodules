@@ -4,3 +4,6 @@
 [submodule "packages/06-chat"]
 	path = packages/06-chat
 	url = file:///D:/Development/Cresteo/ChatAI/06-chat-remote.git
+[submodule "packages/07-widget"]
+	path = packages/07-widget
+	url = https://github.com/rpampin-cresteo/chatbot-widget.git

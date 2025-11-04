@@ -14,6 +14,7 @@ dotenv.config({ path: path.join(projectRoot, '.env') });
 
 const searchDir = path.join(projectRoot, 'packages', '05-search');
 const chatDir = path.join(projectRoot, 'packages', '06-chat');
+const widgetDir = path.join(projectRoot, 'packages', '07-widget');
 
 const parsePort = (value, fallback) => {
   if (typeof value === 'number') {
@@ -83,11 +84,14 @@ const acquirePort = async (preferredPort, label) => {
 };
 
 const resolvePorts = async () => {
-  const desiredSearchPort = parsePort(process.env.SEARCH_PORT, 5050);
+  const desiredSearchPort = parsePort(process.env.SEARCH_PORT, 3001);
   const assignedSearchPort = await acquirePort(desiredSearchPort, 'search service');
 
-  const desiredChatPort = parsePort(process.env.CHAT_PORT, 6060);
+  const desiredChatPort = parsePort(process.env.CHAT_PORT, 3002);
   const assignedChatPort = await acquirePort(desiredChatPort, 'chat service');
+
+  const desiredWidgetPort = parsePort(process.env.WIDGET_PORT, 3003);
+  const assignedWidgetPort = await acquirePort(desiredWidgetPort, 'widget');
 
   const desiredGatewayPort = parsePort(process.env.GATEWAY_PORT, 4000);
   const assignedGatewayPort = await acquirePort(desiredGatewayPort, 'gateway');
@@ -95,11 +99,13 @@ const resolvePorts = async () => {
   const ports = {
     searchPort: String(assignedSearchPort),
     chatPort: String(assignedChatPort),
+    widgetPort: String(assignedWidgetPort),
     gatewayPort: String(assignedGatewayPort)
   };
 
   process.env.SEARCH_PORT = ports.searchPort;
   process.env.CHAT_PORT = ports.chatPort;
+  process.env.WIDGET_PORT = ports.widgetPort;
   process.env.GATEWAY_PORT = ports.gatewayPort;
 
   return ports;
@@ -142,7 +148,7 @@ const spawnManaged = async (name, dir, scriptName, extraArgs, extraEnv) => {
   children.push({ name, child });
 };
 
-const spawnGateway = ({ gatewayPort, searchPort, chatPort }) => {
+const spawnGateway = ({ gatewayPort, searchPort, chatPort, widgetPort }) => {
   const child = spawn('node', ['apps/gateway/index.mjs'], {
     cwd: projectRoot,
     env: {
@@ -151,7 +157,8 @@ const spawnGateway = ({ gatewayPort, searchPort, chatPort }) => {
       ENABLE_DEV_UI: 'true',
       GATEWAY_PORT: gatewayPort,
       SEARCH_PORT: searchPort,
-      CHAT_PORT: chatPort
+      CHAT_PORT: chatPort,
+      WIDGET_PORT: widgetPort
     },
     stdio: 'inherit',
     windowsHide: false,
@@ -196,16 +203,17 @@ const initiateShutdown = (code) => {
   for (const entry of children) {
     terminateChild(entry);
   }
-  // allow processes to exit gracefully
   setTimeout(() => {
     process.exit(code);
   }, 1000);
 };
 
 const main = async () => {
-  const { searchPort, chatPort, gatewayPort } = await resolvePorts();
+  const { searchPort, chatPort, widgetPort, gatewayPort } = await resolvePorts();
 
   const searchBaseUrl = `http://127.0.0.1:${searchPort}`;
+  const chatApiUrl = `http://127.0.0.1:${chatPort}/api/chat`;
+  const widgetBaseUrl = `http://127.0.0.1:${widgetPort}`;
 
   if (process.env.SEARCH_BASE_URL && process.env.SEARCH_BASE_URL !== searchBaseUrl) {
     console.warn(
@@ -214,6 +222,16 @@ const main = async () => {
   }
 
   process.env.SEARCH_BASE_URL = searchBaseUrl;
+  process.env.CHAT_API_URL = chatApiUrl;
+  process.env.WIDGET_BASE_URL = widgetBaseUrl;
+
+  const allowedOrigins = [
+    searchBaseUrl,
+    `http://127.0.0.1:${chatPort}`,
+    widgetBaseUrl,
+    `http://127.0.0.1:${gatewayPort}`
+  ];
+  process.env.ALLOWED_ORIGINS = Array.from(new Set(allowedOrigins)).join(',');
 
   await spawnManaged('search', searchDir, 'dev', [], {
     PORT: searchPort,
@@ -226,7 +244,15 @@ const main = async () => {
     SEARCH_BASE_URL: searchBaseUrl
   });
 
-  spawnGateway({ searchPort, chatPort, gatewayPort });
+  await spawnManaged('widget', widgetDir, 'dev', [], {
+    PORT: widgetPort,
+    NODE_ENV: 'development',
+    CHAT_API_URL: chatApiUrl,
+    WIDGET_BASE_URL: widgetBaseUrl,
+    ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS
+  });
+
+  spawnGateway({ searchPort, chatPort, widgetPort, gatewayPort });
 };
 
 process.on('SIGINT', () => {

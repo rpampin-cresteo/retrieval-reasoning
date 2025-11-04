@@ -1,4 +1,4 @@
-import { access } from 'node:fs/promises';
+import { access, readFile } from 'node:fs/promises';
 import path from 'node:path';
 
 const WINDOWS = process.platform === 'win32';
@@ -24,6 +24,25 @@ export const detectPackageManager = async (dir) => {
     } catch {
       // continue searching
     }
+  }
+  try {
+    const pkgPath = path.join(dir, 'package.json');
+    const raw = await readFile(pkgPath, 'utf8');
+    const pkg = JSON.parse(raw);
+    const managerField = pkg?.packageManager;
+    if (typeof managerField === 'string') {
+      if (managerField.startsWith('pnpm')) {
+        return 'pnpm';
+      }
+      if (managerField.startsWith('yarn')) {
+        return 'yarn';
+      }
+      if (managerField.startsWith('npm')) {
+        return 'npm';
+      }
+    }
+  } catch {
+    // ignore parse errors
   }
   return 'npm';
 };
