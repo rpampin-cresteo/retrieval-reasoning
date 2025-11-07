@@ -12,6 +12,8 @@ const projectRoot = path.resolve(__dirname, '..');
 
 dotenv.config({ path: path.join(projectRoot, '.env') });
 
+process.env.COREPACK_ENABLE_DOWNLOAD_PROMPT = '0';
+
 const searchDir = path.join(projectRoot, 'packages', '05-search');
 const chatDir = path.join(projectRoot, 'packages', '06-chat');
 const widgetDir = path.join(projectRoot, 'packages', '07-widget');
@@ -227,9 +229,13 @@ const main = async () => {
 
   const allowedOrigins = [
     searchBaseUrl,
+    searchBaseUrl.replace('127.0.0.1', 'localhost'),
     `http://127.0.0.1:${chatPort}`,
+    `http://localhost:${chatPort}`,
     widgetBaseUrl,
-    `http://127.0.0.1:${gatewayPort}`
+    widgetBaseUrl.replace('127.0.0.1', 'localhost'),
+    `http://127.0.0.1:${gatewayPort}`,
+    `http://localhost:${gatewayPort}`
   ];
   process.env.ALLOWED_ORIGINS = Array.from(new Set(allowedOrigins)).join(',');
 
@@ -247,6 +253,9 @@ const main = async () => {
   await spawnManaged('widget', widgetDir, 'dev', [], {
     PORT: widgetPort,
     NODE_ENV: 'development',
+    CHAT_API_URL_RUNTIME: chatApiUrl,
+    WIDGET_BASE_URL_RUNTIME: widgetBaseUrl,
+    ALLOWED_ORIGINS_RUNTIME: process.env.ALLOWED_ORIGINS,
     CHAT_API_URL: chatApiUrl,
     WIDGET_BASE_URL: widgetBaseUrl,
     ALLOWED_ORIGINS: process.env.ALLOWED_ORIGINS

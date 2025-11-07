@@ -24,6 +24,14 @@ const SUBMODULES = [
       path.join(projectRoot, 'packages', '06-chat'),
       path.resolve(projectRoot, '..', '06-chat')
     ]
+  },
+  {
+    name: '07-widget',
+    repoDir: path.join(projectRoot, 'packages', '07-widget'),
+    valueDirs: [
+      path.join(projectRoot, 'packages', '07-widget'),
+      path.resolve(projectRoot, '..', '07-widget')
+    ]
   }
 ];
 

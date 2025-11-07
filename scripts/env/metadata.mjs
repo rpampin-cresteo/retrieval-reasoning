@@ -40,6 +40,80 @@ export const envMetadata = [
     defaultValue: '6060'
   },
   {
+    key: 'WIDGET_PORT',
+    description: 'Port used when launching the chat widget locally',
+    origins: ['orchestrator', '07-widget'],
+    required: false,
+    exampleValue: '3003',
+    defaultValue: '3003'
+  },
+  {
+    key: 'CHAT_API_URL',
+    description: 'Base URL for the chat service as consumed by the widget API',
+    origins: ['07-widget'],
+    required: false,
+    exampleValue: 'http://127.0.0.1:6060/api/chat'
+  },
+  {
+    key: 'WIDGET_BASE_URL',
+    description: 'Public URL where the widget is hosted (used for callbacks and CORS)',
+    origins: ['07-widget'],
+    required: false,
+    exampleValue: 'http://127.0.0.1:3003'
+  },
+  {
+    key: 'ALLOWED_ORIGINS',
+    description: 'Comma separated list of browser origins allowed to call the widget API',
+    origins: ['07-widget'],
+    required: false
+  },
+  {
+    key: 'REDIS_URL',
+    description: 'Redis connection URL for optional server-side memory storage',
+    origins: ['07-widget'],
+    required: false
+  },
+  {
+    key: 'REDIS_TOKEN',
+    description: 'Redis/Upstash token for server-side memory storage',
+    origins: ['07-widget'],
+    required: false
+  },
+  {
+    key: 'SERVER_MEMORY_ENABLED',
+    description: 'Toggle for enabling Redis-backed widget memory',
+    origins: ['07-widget'],
+    required: false,
+    defaultValue: 'false'
+  },
+  {
+    key: 'SESSION_COOKIE_NAME',
+    description: 'Cookie name used to persist widget sessions',
+    origins: ['07-widget'],
+    required: false,
+    defaultValue: 'cw_session'
+  },
+  {
+    key: 'SESSION_COOKIE_SECRET',
+    description: 'Secret used to sign widget session cookies',
+    origins: ['07-widget'],
+    required: false
+  },
+  {
+    key: 'SESSION_COOKIE_MAX_AGE_DAYS',
+    description: 'Maximum age, in days, for the widget session cookie',
+    origins: ['07-widget'],
+    required: false,
+    defaultValue: '30'
+  },
+  {
+    key: 'LOG_PII',
+    description: 'Enables verbose logging of PII within the widget service',
+    origins: ['07-widget'],
+    required: false,
+    defaultValue: 'false'
+  },
+  {
     key: 'AZURE_SEARCH_ENDPOINT',
     description: 'Azure AI Search endpoint URL',
     origins: ['05-search'],
@@ -193,6 +267,6 @@ export const envMetadata = [
   }
 ];
 
-export const modulePriority = ['knowledge-pipeline', '06-chat', '05-search'];
+export const modulePriority = ['knowledge-pipeline', '06-chat', '05-search', '07-widget'];
 
 export const orchestratorOriginLabel = 'orchestrator';
